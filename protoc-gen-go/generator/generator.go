@@ -1361,7 +1361,7 @@ func (g *Generator) generateEnum(enum *EnumDescriptor) {
 	typeName := enum.TypeName()
 	// The full type name, CamelCased.
 	ccTypeName := CamelCaseSlice(typeName)
-	ccPrefix := enum.prefix()
+	//ccPrefix := enum.prefix()
 
 	deprecatedEnum := ""
 	if enum.GetOptions().GetDeprecated() {
@@ -1380,7 +1380,8 @@ func (g *Generator) generateEnum(enum *EnumDescriptor) {
 			deprecatedValue = deprecationComment
 		}
 
-		name := ccPrefix + *e.Name
+		//name := ccPrefix + *e.Name
+		name := *e.Name
 		g.P(Annotate(enum.file, etorPath, name), " ", ccTypeName, " = ", e.Number, " ", deprecatedValue)
 		g.file.addExport(enum, constOrVarSymbol{name, "const", ccTypeName})
 	}
