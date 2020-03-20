@@ -5,9 +5,9 @@ package importing
 
 import (
 	fmt "fmt"
-	proto "github.com/golang/protobuf/proto"
-	_ "github.com/golang/protobuf/protoc-gen-go/testdata/import_public"
-	sub "github.com/golang/protobuf/protoc-gen-go/testdata/import_public/sub"
+	proto "github.com/marklonquist/protobuf/proto"
+	_ "github.com/marklonquist/protobuf/protoc-gen-go/testdata/import_public"
+	sub "github.com/marklonquist/protobuf/protoc-gen-go/testdata/import_public/sub"
 	math "math"
 )
 
