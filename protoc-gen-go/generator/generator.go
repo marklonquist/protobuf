@@ -1361,7 +1361,7 @@ func (g *Generator) generateEnum(enum *EnumDescriptor) {
 	typeName := enum.TypeName()
 	// The full type name, CamelCased.
 	ccTypeName := CamelCaseSlice(typeName)
-	ccPrefix := enum.prefix()
+	//ccPrefix := enum.prefix()
 
 	deprecatedEnum := ""
 	if enum.GetOptions().GetDeprecated() {
@@ -1380,8 +1380,7 @@ func (g *Generator) generateEnum(enum *EnumDescriptor) {
 			deprecatedValue = deprecationComment
 		}
 
-		//name := ccPrefix + *e.Name
-		*e.Name = strings.Replace(*e.Name, ccPrefix, "", -1)
+		// name := ccPrefix + *e.Name
 		name := *e.Name
 		g.P(Annotate(enum.file, etorPath, name), " ", ccTypeName, " = ", e.Number, " ", deprecatedValue)
 		g.file.addExport(enum, constOrVarSymbol{name, "const", ccTypeName})
@@ -1743,7 +1742,7 @@ func (g *Generator) getterDefault(field *descriptor.FieldDescriptorProto, goMess
 			return "0 // empty enum"
 		}
 		first := enum.Value[0].GetName()
-		return g.DefaultPackageName(obj) + enum.prefix() + first
+		return g.DefaultPackageName(obj) + first
 	default:
 		return "0"
 	}
@@ -2368,6 +2367,7 @@ func (g *Generator) generateMessage(message *Descriptor) {
 		if ok {
 			c += "\n"
 		}
+
 		rf := simpleField{
 			fieldCommon: fieldCommon{
 				goName:     fieldName,
