@@ -1805,7 +1805,7 @@ type simpleField struct {
 
 // decl prints the declaration of the field in the struct (if any).
 func (f *simpleField) decl(g *Generator, mc *msgCtx) {
-	if strings.Contains(f.comment, "@remove_field_name") {
+	if strings.Contains(f.comment, "@inject_tag: bson:\"inline\"") {
 		g.P(f.comment, "", "\t", f.goType, "\t`", f.tags, "`", f.deprecated)
 	} else {
 		g.P(f.comment, Annotate(mc.message.file, f.fullPath, f.goName), "\t", f.goType, "\t`", f.tags, "`", f.deprecated)
@@ -2245,7 +2245,14 @@ func (g *Generator) generateMessage(message *Descriptor) {
 		fieldName, fieldGetterName := ns[0], ns[1]
 		typename, wiretype := g.GoType(message, field)
 		jsonName := *field.Name
+
 		tag := fmt.Sprintf("protobuf:%s json:%q", g.goTag(message, field, wiretype), jsonName+",omitempty")
+		fieldFullPathX := fmt.Sprintf("%s,%d,%d", message.path, messageFieldPath, i)
+		if cX, ok := g.makeComments(fieldFullPathX); ok {
+			if strings.Contains(cX, "@inject_tag: bson:\"inline\"") {
+				tag = fmt.Sprintf("protobuf:%s", g.goTag(message, field, wiretype))
+			}
+		}
 
 		oneof := field.OneofIndex != nil
 		if oneof && oFields[*field.OneofIndex] == nil {
