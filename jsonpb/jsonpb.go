@@ -136,7 +136,7 @@ func (m *Marshaler) Marshal(out io.Writer, pb proto.Message) error {
 		return err
 	}
 	writer := &errWriter{writer: out}
-	return m.marshalObject(writer, pb, "", "")
+	return m.marshalObject(writer, pb, "", "", "")
 }
 
 // MarshalToString converts a protocol buffer object to JSON string.
@@ -171,7 +171,7 @@ var (
 )
 
 // marshalObject writes a struct to the Writer.
-func (m *Marshaler) marshalObject(out *errWriter, v proto.Message, indent, typeURL string) error {
+func (m *Marshaler) marshalObject(out *errWriter, v proto.Message, indent, typeURL, parent string) error {
 	if jsm, ok := v.(JSONPBMarshaler); ok {
 		b, err := jsm.MarshalJSONPB(m)
 		if err != nil {
@@ -279,7 +279,10 @@ func (m *Marshaler) marshalObject(out *errWriter, v proto.Message, indent, typeU
 		}
 	}
 
-	out.write("{")
+	if parent != "base" {
+		out.write("{")
+	}
+
 	if m.Indent != "" {
 		out.write("\n")
 	}
@@ -395,7 +398,11 @@ func (m *Marshaler) marshalObject(out *errWriter, v proto.Message, indent, typeU
 		out.write("\n")
 		out.write(indent)
 	}
-	out.write("}")
+
+	if parent != "base" {
+		out.write("}")
+	}
+
 	return out.err
 }
 
@@ -447,7 +454,7 @@ func (m *Marshaler) marshalAny(out *errWriter, any proto.Message, indent string)
 		} else {
 			out.write(`"value":`)
 		}
-		if err := m.marshalObject(out, msg, indent+m.Indent, ""); err != nil {
+		if err := m.marshalObject(out, msg, indent+m.Indent, "", ""); err != nil {
 			return err
 		}
 		if m.Indent != "" {
@@ -458,7 +465,7 @@ func (m *Marshaler) marshalAny(out *errWriter, any proto.Message, indent string)
 		return out.err
 	}
 
-	return m.marshalObject(out, msg, indent, turl)
+	return m.marshalObject(out, msg, indent, turl, "")
 }
 
 func (m *Marshaler) marshalTypeURL(out *errWriter, indent, typeURL string) error {
@@ -480,6 +487,12 @@ func (m *Marshaler) marshalTypeURL(out *errWriter, indent, typeURL string) error
 
 // marshalField writes field description and value to the Writer.
 func (m *Marshaler) marshalField(out *errWriter, prop *proto.Properties, v reflect.Value, indent string) error {
+	if prop.Name == "Base" {
+		if err := m.marshalValue(out, prop, v, indent); err != nil {
+			return err
+		}
+		return nil
+	}
 	if m.Indent != "" {
 		out.write(indent)
 		out.write(m.Indent)
@@ -570,7 +583,7 @@ func (m *Marshaler) marshalValue(out *errWriter, prop *proto.Properties, v refle
 
 	// Handle nested messages.
 	if v.Kind() == reflect.Struct {
-		return m.marshalObject(out, v.Addr().Interface().(proto.Message), indent+m.Indent, "")
+		return m.marshalObject(out, v.Addr().Interface().(proto.Message), indent+m.Indent, "", prop.JSONName)
 	}
 
 	// Handle maps.
