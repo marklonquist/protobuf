@@ -1805,7 +1805,11 @@ type simpleField struct {
 
 // decl prints the declaration of the field in the struct (if any).
 func (f *simpleField) decl(g *Generator, mc *msgCtx) {
-	g.P(f.comment, Annotate(mc.message.file, f.fullPath, f.goName), "\t", f.goType, "\t`", f.tags, "`", f.deprecated)
+	if strings.Contains(f.comment, "@remove_field_name") {
+		g.P(f.comment, "", "\t", f.goType, "\t`", f.tags, "`", f.deprecated)
+	} else {
+		g.P(f.comment, Annotate(mc.message.file, f.fullPath, f.goName), "\t", f.goType, "\t`", f.tags, "`", f.deprecated)
+	}
 }
 
 // getter prints the getter for the field.
