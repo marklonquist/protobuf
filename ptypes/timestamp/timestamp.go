@@ -17,6 +17,10 @@ func (m *Timestamp) MarshalJSON() ([]byte, error) {
 }
 
 func (m *Timestamp) UnmarshalJSON(b []byte) error {
+	if len(b) == 2 {
+		return nil
+	}
+
 	var t time.Time
 	err := json.Unmarshal(b, &t)
 	if err != nil {
