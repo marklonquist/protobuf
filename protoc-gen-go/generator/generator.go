@@ -2246,7 +2246,7 @@ func (g *Generator) generateMessage(message *Descriptor) {
 		typename, wiretype := g.GoType(message, field)
 		jsonName := *field.Name
 
-		tag := fmt.Sprintf("protobuf:%s json:%q", g.goTag(message, field, wiretype), jsonName+",omitempty")
+		tag := fmt.Sprintf("protobuf:%s json:%q", g.goTag(message, field, wiretype), jsonName)
 		fieldFullPathX := fmt.Sprintf("%s,%d,%d", message.path, messageFieldPath, i)
 		if cX, ok := g.makeComments(fieldFullPathX); ok {
 			if strings.Contains(cX, "@inject_tag: bson:\"inline\"") {
